@@ -11,10 +11,9 @@
 <body>
   <main>
     <section id="inicio" aria-labelledby="home-title">
-      <header class="page-heading"><h1 id="home-title" tabindex="-1">Início</h1></header>
+      <header class="page-heading"><h1 id="home-title" class="brand" tabindex="-1">mira<span>.</span></h1></header>
       <div class="home-intro">
-        <div><p class="brand">mira<span>.</span></p><p>Olá, bons estudos!</p><p class="muted" id="today-label"></p></div>
-        <button class="icon-button" id="settings-open" aria-label="configurações" title="configurações"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h4l.6 2.6 2 .9 2.4-1.1 2 3.4-1.9 1.8v2.8l1.9 1.8-2 3.4-2.4-1.1-2 .9L14 21h-4l-.6-2.6-2-.9L5 18.6l-2-3.4 1.9-1.8v-2.8L3 8.8l2-3.4 2.4 1.1 2-.9z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <p>Olá, bons estudos!</p><p class="muted" id="today-label"></p>
       </div>
       <section class="card timer-card" aria-labelledby="timer-title">
         <h2 id="timer-title">Cronômetro de estudo</h2>
@@ -55,7 +54,21 @@
     <section id="estatisticas" aria-labelledby="stats-title" hidden>
       <header class="page-heading"><h1 id="stats-title" tabindex="-1">Estatísticas</h1></header>
       <div id="statistics" class="stats-grid"></div>
-      <section class="card chart-card"><h2>Tempo de estudo nesta semana</h2><ul id="weekly-chart" class="chart"></ul></section>
+    </section>
+    <section id="configuracoes" aria-labelledby="settings-title" hidden>
+      <header class="page-heading"><h1 id="settings-title" tabindex="-1">Configurações</h1></header>
+      <section class="card appearance-card" aria-labelledby="appearance-title">
+        <h2 id="appearance-title">Aparência</h2>
+        <label class="theme-option"><span>Modo escuro</span><input id="dark-mode" class="theme-switch" type="checkbox" role="switch"></label>
+        <label class="theme-option"><span>Seguir tema do dispositivo</span><input id="system-theme" type="checkbox"></label>
+        <p class="form-error" id="appearance-error" role="alert"></p>
+      </section>
+      <form id="settings-form" class="card" aria-label="meta e calendário">
+        <fieldset><legend>Meta diária</legend><div class="fields"><label>Horas<input type="number" name="hours" min="0" max="9999" required></label><label>Minutos<input type="number" name="minutes" min="0" max="59" required></label></div></fieldset>
+        <label>Paleta do calendário<select name="palette"><option value="pink">rosa</option><option value="red">vermelho</option><option value="lavender">lavanda</option></select></label>
+        <fieldset><legend>Limites de intensidade</legend><p class="muted">Informe o último minuto de cada nível, em ordem crescente. O nível 4 começa logo após o terceiro limite.</p><div class="fields"><label>Nível 1 (min)<input type="number" name="level1" min="1" max="999999" required></label><label>Nível 2 (min)<input type="number" name="level2" min="2" max="999999" required></label><label>Nível 3 (min)<input type="number" name="level3" min="3" max="999999" required></label></div></fieldset>
+        <p class="form-error" id="settings-error" role="alert"></p><button class="primary" type="submit">Salvar configurações</button>
+      </form>
     </section>
   </main>
   <nav class="bottom-nav" aria-label="navegação principal">
@@ -71,17 +84,11 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18M8 16v-4m5 4V8m5 8V5"/></svg>
       <span>Estatísticas</span>
     </a>
+    <a href="#configuracoes">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3h4l.6 2.6 2 .9 2.4-1.1 2 3.4-1.9 1.8v2.8l1.9 1.8-2 3.4-2.4-1.1-2 .9L14 21h-4l-.6-2.6-2-.9L5 18.6l-2-3.4 1.9-1.8v-2.8L3 8.8l2-3.4 2.4 1.1 2-.9z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span>Configurações</span>
+    </a>
   </nav>
-  <dialog id="settings-dialog" aria-labelledby="settings-title">
-    <form id="settings-form">
-      <div class="card-heading"><h2 id="settings-title">Configurações</h2><button type="button" class="icon-button" data-close aria-label="fechar configurações">×</button></div>
-      <fieldset><legend>Meta diária</legend><div class="fields"><label>Horas<input type="number" name="hours" min="0" max="9999" required></label><label>Minutos<input type="number" name="minutes" min="0" max="59" required></label></div></fieldset>
-      <label>Tema<select name="theme"><option value="auto">automático</option><option value="light">claro</option><option value="dark">escuro</option></select></label>
-      <label>Paleta do calendário<select name="palette"><option value="pink">rosa</option><option value="red">vermelho</option><option value="lavender">lavanda</option></select></label>
-      <fieldset><legend>Limites de intensidade</legend><p class="muted">Informe o último minuto de cada nível, em ordem crescente. O nível 4 começa logo após o terceiro limite.</p><div class="fields"><label>Nível 1 (min)<input type="number" name="level1" min="1" max="999999" required></label><label>Nível 2 (min)<input type="number" name="level2" min="2" max="999999" required></label><label>Nível 3 (min)<input type="number" name="level3" min="3" max="999999" required></label></div></fieldset>
-      <p class="form-error" id="settings-error" role="alert"></p><button class="primary" type="submit">Salvar configurações</button>
-    </form>
-  </dialog>
   <dialog id="session-dialog" aria-labelledby="session-title">
     <form id="session-form">
       <div class="card-heading"><h2 id="session-title"></h2><button type="button" class="icon-button" data-close aria-label="fechar sessão">×</button></div>

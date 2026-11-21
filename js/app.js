@@ -37,9 +37,13 @@ function notice(message) {
 }
 
 function applyTheme() {
-  document.documentElement.dataset.theme = settings.theme === 'auto'
-    ? (systemTheme.matches ? 'dark' : 'light') : settings.theme;
+  const followsSystem = settings.theme === 'auto';
+  const isDark = followsSystem ? systemTheme.matches : settings.theme === 'dark';
+  document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
   document.documentElement.dataset.palette = settings.palette;
+  $('system-theme').checked = followsSystem;
+  $('dark-mode').checked = isDark;
+  $('dark-mode').disabled = followsSystem;
 }
 
 function renderTimer() {
@@ -109,9 +113,7 @@ function renderHistory() {
 function renderStatistics() {
   const result = statistics(totals, today);
   const indicators = [
-    ['Total nesta semana', duration(result.weekTotal)],
     ['Total neste mês', duration(result.monthTotal)],
-    ['Média diária da semana', duration(result.weekAverage)],
     ['Média diária do mês', duration(result.monthAverage)],
     ['Dias estudados no histórico', dayCount(result.studiedDays)],
     ['Sequência atual', dayCount(result.current)],
@@ -122,7 +124,6 @@ function renderStatistics() {
     card.append(element('h2', label), element('p', value, 'metric'));
     return card;
   }));
-  renderChart($('weekly-chart'), result.week);
 }
 
 function renderChart(container, entries, limits) {
@@ -135,7 +136,7 @@ function renderChart(container, entries, limits) {
     label.dateTime = entry.day;
     label.title = dateLabel(entry.day).toLocaleLowerCase('pt-BR');
     if (entry.day === today) label.setAttribute('aria-current', 'date');
-    if (limits) bar.dataset.level = intensity(entry.seconds, limits);
+    bar.dataset.level = intensity(entry.seconds, limits);
     bar.style.height = `${entry.seconds / max * 100}%`;
     track.setAttribute('aria-hidden', 'true');
     track.append(bar);
@@ -154,7 +155,7 @@ function renderPage() {
 }
 
 function navigate() {
-  const pages = ['inicio', 'historico', 'estatisticas'];
+  const pages = ['inicio', 'historico', 'estatisticas', 'configuracoes'];
   const previous = page;
   page = pages.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'inicio';
   for (const id of pages) {
@@ -164,6 +165,7 @@ function navigate() {
     else link.removeAttribute('aria-current');
   }
   renderPage();
+  if (page === 'configuracoes' && previous !== page) renderSettingsForm();
   if (previous && previous !== page) {
     $(page).querySelector('h1').focus({ preventScroll: true });
     window.scrollTo(0, 0);
@@ -366,13 +368,32 @@ function formDuration(form) {
   return (form.elements.hours.valueAsNumber * 60 + form.elements.minutes.valueAsNumber) * 60;
 }
 
-$('settings-open').addEventListener('click', () => {
+function renderSettingsForm() {
   fillDuration(settingsForm, settings.goal);
-  settingsForm.elements.theme.value = settings.theme;
   settingsForm.elements.palette.value = settings.palette;
   settings.limits.forEach((value, index) => { settingsForm.elements[`level${index + 1}`].value = value; });
   set('settings-error', '');
-  $('settings-dialog').showModal();
+  set('appearance-error', '');
+}
+
+function changeTheme(theme) {
+  try {
+    const next = { ...readSettings(localStorage), theme };
+    saveSettings(localStorage, next);
+    settings = next;
+    set('appearance-error', '');
+  } catch {
+    set('appearance-error', 'Não foi possível salvar o tema.');
+  }
+  applyTheme();
+}
+
+$('dark-mode').addEventListener('change', event => {
+  if (settings.theme !== 'auto') changeTheme(event.target.checked ? 'dark' : 'light');
+});
+
+$('system-theme').addEventListener('change', event => {
+  changeTheme(event.target.checked ? 'auto' : (systemTheme.matches ? 'dark' : 'light'));
 });
 
 settingsForm.addEventListener('submit', event => {
@@ -383,15 +404,13 @@ settingsForm.addEventListener('submit', event => {
     set('settings-error', 'Informe uma meta maior que zero e três limites em ordem crescente.');
     return;
   }
-  const next = {
-    version: 1, goal, limits, theme: settingsForm.elements.theme.value, palette: settingsForm.elements.palette.value,
-  };
   try {
+    const next = { ...readSettings(localStorage), goal, limits, palette: settingsForm.elements.palette.value };
     saveSettings(localStorage, next);
     settings = next;
     applyTheme();
     renderPage();
-    $('settings-dialog').close();
+    set('settings-error', '');
     notice('Configurações salvas.');
   } catch {
     set('settings-error', 'Não foi possível salvar as configurações.');
