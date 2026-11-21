@@ -13,7 +13,7 @@ function dayButton(day, label, state) {
   button.type = 'button';
   button.dataset.day = day;
   button.dataset.level = intensity(seconds, state.limits);
-  button.title = `${dateLabel(day)} · ${duration(seconds)}`;
+  button.title = `${dateLabel(day)} · ${duration(seconds)}`.toLocaleLowerCase('pt-BR');
   button.setAttribute('aria-label', button.title);
   button.setAttribute('aria-pressed', String(day === state.selected));
   if (day === state.today) button.setAttribute('aria-current', 'date');
@@ -62,7 +62,7 @@ export function renderYear(container, year, state) {
 }
 
 export function renderLegend(container, limits) {
-  const ranges = ['0 min', `Até ${limits[0]} min`, `${limits[0] + 1}–${limits[1]} min`,
+  const ranges = ['0 min', `até ${limits[0]} min`, `${limits[0] + 1}–${limits[1]} min`,
     `${limits[1] + 1}–${limits[2]} min`, `${limits[2] + 1} min ou mais`];
   const markers = ranges.map((label, level) => {
     const marker = element('i');
@@ -71,6 +71,6 @@ export function renderLegend(container, limits) {
     marker.setAttribute('aria-hidden', 'true');
     return marker;
   });
-  container.setAttribute('aria-label', `Legenda de intensidade. ${ranges.join('; ')}`);
+  container.setAttribute('aria-label', `legenda de intensidade. ${ranges.join('; ')}`);
   container.replaceChildren(element('span', 'Menos'), ...markers, element('span', 'Mais'));
 }

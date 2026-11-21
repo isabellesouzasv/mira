@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dateFor, localDay, shiftDay, validDay, intensity, sessionRecord, totalsFor, streaks, statistics } from '../js/model.mjs';
+import { dateFor, localDay, shiftDay, validDay, intensity, recentWeek, sessionRecord, totalsFor, streaks, statistics } from '../js/model.mjs';
 import { checkpoint, elapsed, newTimer, pause, resume, timerSessions } from '../js/timer.mjs';
 import { readStudy, readSettings, saveStudy, saveSettings, STUDY_KEY, SETTINGS_KEY, defaults, validLimits } from '../js/storage.mjs';
 
@@ -93,6 +93,17 @@ test('calcula estatísticas com dias decorridos, incluindo dias sem estudo', () 
   assert.equal(stats.monthTotal, 2400);
   assert.equal(stats.monthAverage, 185);
   assert.equal(stats.studiedDays, 3);
+});
+
+test('histórico agrupa os últimos sete dias incluindo hoje, mesmo na troca de mês', () => {
+  const totals = new Map([['2025-04-25', 3600], ['2025-04-26', 120], ['2025-05-02', 600], ['2025-05-03', 1800]]);
+  const week = recentWeek(totals, '2025-05-02');
+  assert.deepEqual(week.map(entry => entry.day), [
+    '2025-04-26', '2025-04-27', '2025-04-28', '2025-04-29', '2025-04-30', '2025-05-01', '2025-05-02',
+  ]);
+  assert.deepEqual(week.map(entry => entry.label), ['Sáb', 'Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex']);
+  assert.deepEqual(week.map(entry => entry.seconds), [120, 0, 0, 0, 0, 0, 600]);
+  assert.equal(week.reduce((sum, entry) => sum + entry.seconds, 0), 720);
 });
 
 test('níveis cobrem todos os segundos nas fronteiras e aceita limites personalizados', () => {

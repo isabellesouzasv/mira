@@ -64,6 +64,13 @@ export function streaks(totals, today) {
   return { longest, current: previous === today || previous === shiftDay(today, -1) ? chain : 0 };
 }
 
+export function recentWeek(totals, today) {
+  return Array.from({ length: 7 }, (_, index) => {
+    const day = shiftDay(today, index - 6);
+    return { day, label: weekdays[weekdayIndex(dateFor(day))], seconds: totals.get(day) ?? 0 };
+  });
+}
+
 export function statistics(totals, today) {
   const date = dateFor(today);
   const weekday = weekdayIndex(date);

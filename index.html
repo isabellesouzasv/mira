@@ -2,26 +2,23 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
-  <title>Mira — Horas de estudo</title>
+  <title>mira — horas de estudo</title>
   <link rel="stylesheet" href="css/styles.css">
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
-  <header class="site-header"><div class="header-inner">
-    <a class="brand" href="#inicio" aria-label="Mira, início">mira<span>.</span></a>
-    <nav aria-label="Navegação principal">
-      <a href="#inicio">Início</a><a href="#historico">Histórico</a><a href="#estatisticas">Estatísticas</a>
-    </nav>
-    <button class="icon-button" id="settings-open" aria-label="Configurações" title="Configurações"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h4l.6 2.6 2 .9 2.4-1.1 2 3.4-1.9 1.8v2.8l1.9 1.8-2 3.4-2.4-1.1-2 .9L14 21h-4l-.6-2.6-2-.9L5 18.6l-2-3.4 1.9-1.8v-2.8L3 8.8l2-3.4 2.4 1.1 2-.9z"/><circle cx="12" cy="12" r="3"/></svg></button>
-  </div></header>
   <main>
     <section id="inicio" aria-labelledby="home-title">
-      <header class="page-heading"><p class="eyebrow" id="today-label"></p><h1 id="home-title">Olá, bons estudos!</h1></header>
+      <header class="page-heading"><h1 id="home-title" tabindex="-1">Início</h1></header>
+      <div class="home-intro">
+        <div><p class="brand">mira<span>.</span></p><p>Olá, bons estudos!</p><p class="muted" id="today-label"></p></div>
+        <button class="icon-button" id="settings-open" aria-label="configurações" title="configurações"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3h4l.6 2.6 2 .9 2.4-1.1 2 3.4-1.9 1.8v2.8l1.9 1.8-2 3.4-2.4-1.1-2 .9L14 21h-4l-.6-2.6-2-.9L5 18.6l-2-3.4 1.9-1.8v-2.8L3 8.8l2-3.4 2.4 1.1 2-.9z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
       <section class="card timer-card" aria-labelledby="timer-title">
         <h2 id="timer-title">Cronômetro de estudo</h2>
-        <p id="clock" aria-label="Tempo de estudo">00:00:00</p>
+        <p id="clock" aria-label="tempo de estudo">00:00:00</p>
         <p id="timer-status" aria-live="polite"></p>
         <div class="actions timer-actions">
           <button class="primary" id="timer-toggle" disabled>Iniciar estudo</button>
@@ -29,44 +26,65 @@
         </div>
       </section>
       <div class="home-grid">
-        <section class="card"><h2>Meta diária</h2><p class="goal-numbers"><strong id="today-total"></strong><span id="goal-target"></span></p><progress id="goal-progress" aria-label="Progresso da meta diária"></progress><p class="muted" id="goal-percent"></p></section>
+        <section class="card"><h2>Meta diária</h2><p class="goal-numbers"><strong id="today-total"></strong><span id="goal-target"></span></p><progress id="goal-progress" aria-label="progresso da meta diária"></progress><p class="muted" id="goal-percent"></p></section>
         <section class="card"><h2>Sequência atual</h2><p class="metric" id="home-streak"></p><p class="muted" id="streak-detail"></p></section>
       </div>
     </section>
     <section id="historico" aria-labelledby="history-title" hidden>
-      <header class="page-heading with-action"><h1 id="history-title">Histórico</h1><button class="primary" id="session-add">Adicionar sessão</button></header>
+      <header class="page-heading"><h1 id="history-title" tabindex="-1">Histórico</h1></header>
+      <section class="card recent-card" aria-labelledby="recent-title">
+        <div class="card-heading"><h2 id="recent-title">Últimos sete dias</h2><p class="muted" id="recent-total"></p></div>
+        <ul id="recent-chart" class="chart" role="list"></ul>
+      </section>
       <div class="history-grid">
         <section class="card" aria-labelledby="month-title">
-          <div class="card-heading"><h2 id="month-title"></h2><div class="actions"><button class="icon-button" id="prev-month" aria-label="Mês anterior">‹</button><button class="icon-button" id="next-month" aria-label="Próximo mês">›</button></div></div>
+          <div class="card-heading"><h2 id="month-title"></h2><div class="actions"><button class="icon-button" id="prev-month" aria-label="mês anterior">‹</button><button class="icon-button" id="next-month" aria-label="próximo mês">›</button></div></div>
           <div id="month-calendar" class="month-grid"></div>
         </section>
-        <section class="card" aria-labelledby="day-title"><h2 id="day-title"></h2><p id="day-summary" class="muted"></p><ul id="sessions" class="session-list"></ul></section>
+        <section class="card" aria-labelledby="day-title">
+          <div class="card-heading"><div><h2 id="day-title"></h2><p id="day-summary" class="muted"></p></div><button class="primary" id="session-add">Adicionar sessão</button></div>
+          <ul id="sessions" class="session-list"></ul>
+        </section>
       </div>
       <section class="card annual" aria-labelledby="annual-title">
-        <div class="card-heading"><h2 id="annual-title">Mapa anual</h2><div class="actions"><button class="icon-button" id="prev-year" aria-label="Ano anterior">‹</button><span id="year-label"></span><button class="icon-button" id="next-year" aria-label="Próximo ano">›</button></div></div>
-        <div class="heat-scroll" tabindex="0" role="region" aria-label="Calendário anual com rolagem horizontal"><div id="heat-calendar" class="heat-grid"></div></div>
-        <div class="annual-footer"><p id="heat-selection" class="muted" aria-live="polite"></p><div id="legend" class="legend" role="group" aria-label="Legenda de intensidade"></div></div>
+        <div class="card-heading"><h2 id="annual-title">Mapa anual</h2><div class="actions"><button class="icon-button" id="prev-year" aria-label="ano anterior">‹</button><span id="year-label"></span><button class="icon-button" id="next-year" aria-label="próximo ano">›</button></div></div>
+        <div class="heat-scroll" tabindex="0" role="region" aria-label="calendário anual com rolagem horizontal"><div id="heat-calendar" class="heat-grid"></div></div>
+        <div class="annual-footer"><p id="heat-selection" class="muted" aria-live="polite"></p><div id="legend" class="legend" role="group" aria-label="legenda de intensidade"></div></div>
       </section>
     </section>
     <section id="estatisticas" aria-labelledby="stats-title" hidden>
-      <header class="page-heading"><h1 id="stats-title">Estatísticas</h1></header>
+      <header class="page-heading"><h1 id="stats-title" tabindex="-1">Estatísticas</h1></header>
       <div id="statistics" class="stats-grid"></div>
       <section class="card chart-card"><h2>Tempo de estudo nesta semana</h2><ul id="weekly-chart" class="chart"></ul></section>
     </section>
   </main>
+  <nav class="bottom-nav" aria-label="navegação principal">
+    <a href="#inicio" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3zM9 20v-6h6v6"/></svg>
+      <span>Início</span>
+    </a>
+    <a href="#historico">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-14 5h2m3 0h2m3 0h1"/></svg>
+      <span>Histórico</span>
+    </a>
+    <a href="#estatisticas">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18M8 16v-4m5 4V8m5 8V5"/></svg>
+      <span>Estatísticas</span>
+    </a>
+  </nav>
   <dialog id="settings-dialog" aria-labelledby="settings-title">
     <form id="settings-form">
-      <div class="card-heading"><h2 id="settings-title">Configurações</h2><button type="button" class="icon-button" data-close aria-label="Fechar configurações">×</button></div>
+      <div class="card-heading"><h2 id="settings-title">Configurações</h2><button type="button" class="icon-button" data-close aria-label="fechar configurações">×</button></div>
       <fieldset><legend>Meta diária</legend><div class="fields"><label>Horas<input type="number" name="hours" min="0" max="9999" required></label><label>Minutos<input type="number" name="minutes" min="0" max="59" required></label></div></fieldset>
-      <label>Tema<select name="theme"><option value="auto">Automático</option><option value="light">Claro</option><option value="dark">Escuro</option></select></label>
-      <label>Paleta do calendário<select name="palette"><option value="pink">Rosa</option><option value="red">Vermelho</option><option value="lavender">Lavanda</option></select></label>
+      <label>Tema<select name="theme"><option value="auto">automático</option><option value="light">claro</option><option value="dark">escuro</option></select></label>
+      <label>Paleta do calendário<select name="palette"><option value="pink">rosa</option><option value="red">vermelho</option><option value="lavender">lavanda</option></select></label>
       <fieldset><legend>Limites de intensidade</legend><p class="muted">Informe o último minuto de cada nível, em ordem crescente. O nível 4 começa logo após o terceiro limite.</p><div class="fields"><label>Nível 1 (min)<input type="number" name="level1" min="1" max="999999" required></label><label>Nível 2 (min)<input type="number" name="level2" min="2" max="999999" required></label><label>Nível 3 (min)<input type="number" name="level3" min="3" max="999999" required></label></div></fieldset>
       <p class="form-error" id="settings-error" role="alert"></p><button class="primary" type="submit">Salvar configurações</button>
     </form>
   </dialog>
   <dialog id="session-dialog" aria-labelledby="session-title">
     <form id="session-form">
-      <div class="card-heading"><h2 id="session-title"></h2><button type="button" class="icon-button" data-close aria-label="Fechar sessão">×</button></div>
+      <div class="card-heading"><h2 id="session-title"></h2><button type="button" class="icon-button" data-close aria-label="fechar sessão">×</button></div>
       <label>Data<input type="date" name="date" min="0001-01-01" required></label>
       <div class="fields"><label>Horas<input type="number" name="hours" min="0" max="9999" required></label><label>Minutos<input type="number" name="minutes" min="0" max="59" required></label></div>
       <p class="muted" id="session-remainder"></p><p class="form-error" id="session-error" role="alert"></p><button class="primary" type="submit">Salvar sessão</button>

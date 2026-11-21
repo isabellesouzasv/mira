@@ -1,5 +1,5 @@
 import { studyCoordinator } from './coordination.mjs';
-import { clockText, dateFor, dateLabel, dayCount, duration, localDay, sessionRecord, shiftDay, statistics, streaks, totalsFor, validDay } from './model.mjs';
+import { clockText, dateFor, dateLabel, dayCount, duration, intensity, localDay, recentWeek, sessionRecord, shiftDay, statistics, streaks, totalsFor, validDay } from './model.mjs';
 import { checkpoint, elapsed, newTimer, pause, resume, timerSessions } from './timer.mjs';
 import { STUDY_KEY, SETTINGS_KEY, readStudy, readSettings, saveSettings, validLimits, defaults } from './storage.mjs';
 import { element, renderMonth, renderYear, renderLegend } from './calendar.mjs';
@@ -72,6 +72,9 @@ function renderHome() {
 
 function renderHistory() {
   const state = { today, selected, totals, limits: settings.limits };
+  const recent = recentWeek(totals, today);
+  set('recent-total', `${duration(recent.reduce((sum, entry) => sum + entry.seconds, 0))} no total`);
+  renderChart($('recent-chart'), recent, settings.limits);
   renderMonth($('month-calendar'), $('month-title'), month, state);
   set('year-label', year);
   renderYear($('heat-calendar'), year, state);
@@ -93,7 +96,7 @@ function renderHistory() {
     for (const [action, label] of [['edit', 'Editar'], ['delete', 'Excluir']]) {
       const button = element('button', label);
       button.dataset[action] = entry.id;
-      button.setAttribute('aria-label', `${label} sessão de ${duration(entry.seconds)}`);
+      button.setAttribute('aria-label', `${label.toLocaleLowerCase('pt-BR')} sessão de ${duration(entry.seconds)}`);
       actions.append(button);
     }
     row.append(info, actions);
@@ -119,15 +122,24 @@ function renderStatistics() {
     card.append(element('h2', label), element('p', value, 'metric'));
     return card;
   }));
-  const max = Math.max(1, ...result.week.map(entry => entry.seconds));
-  $('weekly-chart').replaceChildren(...result.week.map(entry => {
+  renderChart($('weekly-chart'), result.week);
+}
+
+function renderChart(container, entries, limits) {
+  const max = Math.max(1, ...entries.map(entry => entry.seconds));
+  container.replaceChildren(...entries.map(entry => {
     const item = element('li');
     const track = element('div', undefined, 'chart-track');
     const bar = element('div', undefined, 'chart-bar');
+    const label = element('time', entry.label);
+    label.dateTime = entry.day;
+    label.title = dateLabel(entry.day).toLocaleLowerCase('pt-BR');
+    if (entry.day === today) label.setAttribute('aria-current', 'date');
+    if (limits) bar.dataset.level = intensity(entry.seconds, limits);
     bar.style.height = `${entry.seconds / max * 100}%`;
     track.setAttribute('aria-hidden', 'true');
     track.append(bar);
-    item.append(element('strong', entry.label), track, element('span', duration(entry.seconds)));
+    item.append(label, track, element('span', duration(entry.seconds)));
     return item;
   }));
 }
@@ -143,6 +155,7 @@ function renderPage() {
 
 function navigate() {
   const pages = ['inicio', 'historico', 'estatisticas'];
+  const previous = page;
   page = pages.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'inicio';
   for (const id of pages) {
     $(id).hidden = id !== page;
@@ -151,6 +164,10 @@ function navigate() {
     else link.removeAttribute('aria-current');
   }
   renderPage();
+  if (previous && previous !== page) {
+    $(page).querySelector('h1').focus({ preventScroll: true });
+    window.scrollTo(0, 0);
+  }
 }
 
 function updateStudy(next, sessionsChanged = false) {
@@ -477,6 +494,12 @@ $('delete-form').addEventListener('submit', async event => {
 
 systemTheme.addEventListener('change', applyTheme);
 addEventListener('hashchange', navigate);
+if (typeof ResizeObserver === 'function') {
+  const nav = document.querySelector('.bottom-nav');
+  new ResizeObserver(() => {
+    document.documentElement.style.setProperty('--nav-height', `${nav.getBoundingClientRect().height}px`);
+  }).observe(nav);
+}
 try {
   settings = readSettings(localStorage);
   updateStudy(readStudy(localStorage), true);
