@@ -53,7 +53,7 @@ function renderTimer() {
   set('clock', clockText(elapsed(timer, coordinator.owner && !leaving ? Date.now() : 0)));
   set('timer-status', !locks ? 'O cronômetro requer um navegador com Web Locks.'
     : remote ? 'Sessão em andamento em outra aba.'
-    : running ? 'Sessão em andamento' : timer ? 'Sessão pausada' : 'Pronto para começar');
+    : running ? 'mantenha o foco ♡' : timer ? 'estudo pausado' : 'pronto para começar');
   set('timer-toggle', running ? 'Pausar' : timer ? 'Continuar' : 'Iniciar estudo');
   $('timer-toggle').disabled = Boolean(!locks || remote);
   $('timer-finish').hidden = !timer;
@@ -74,10 +74,18 @@ function renderHome() {
   set('streak-detail', streak ? 'de estudo consecutivo' : 'Sua sequência começa com o primeiro dia de estudo.');
 }
 
+function weeklyDuration(seconds, showMinuteUnit = false) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor(seconds / 60) % 60;
+  if (!hours) return `${minutes}min`;
+  if (!minutes) return `${hours}h`;
+  return `${hours}h${minutes}${showMinuteUnit ? 'min' : ''}`;
+}
+
 function renderHistory() {
   const state = { today, selected, totals, limits: settings.limits };
   const recent = recentWeek(totals, today);
-  set('recent-total', `${duration(recent.reduce((sum, entry) => sum + entry.seconds, 0))} no total`);
+  set('recent-total', `${weeklyDuration(recent.reduce((sum, entry) => sum + entry.seconds, 0), true)} no total`);
   renderChart($('recent-chart'), recent, settings.limits);
   renderMonth($('month-calendar'), $('month-title'), month, state);
   set('year-label', year);
@@ -140,7 +148,7 @@ function renderChart(container, entries, limits) {
     bar.style.height = `${entry.seconds / max * 100}%`;
     track.setAttribute('aria-hidden', 'true');
     track.append(bar);
-    item.append(label, track, element('span', duration(entry.seconds)));
+    item.append(label, track, element('span', weeklyDuration(entry.seconds), 'chart-duration'));
     return item;
   }));
 }
